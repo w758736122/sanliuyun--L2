@@ -15,7 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from sanliuyunapp.views import registerView,loginView,indexView
+from django.contrib.auth.views import logout
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^$', indexView,name='index'),
+    url(r'^index$', indexView,name='index'),
+    url(r'^register/', registerView,name='register'),
+    url(r'^login/', loginView,name='login'),
+    url(r'^logout/', logout,{'next_page': '/index'},name='logout'),
 ]
