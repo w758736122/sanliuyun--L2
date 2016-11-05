@@ -5,7 +5,7 @@ class Person(models.Model):
     belong_to = models.OneToOneField(to=User ,related_name='user_profile')
     avatar = models.FileField(upload_to='avatar',null = True , blank= True , verbose_name='头像')
     email_address = models.EmailField(verbose_name='邮箱')
-    nickname = models.CharField(max_length= 25,verbose_name='昵称')
+    nickname = models.CharField(max_length= 12,verbose_name='昵称')
     def __str__(self):
         return self.email_address
 
