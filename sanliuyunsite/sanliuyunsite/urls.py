@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from sanliuyunapp.views import registerView,loginView,indexView
+from sanliuyunapp.views import registerView,loginView,indexView,desktopView
 from django.contrib.auth.views import logout
 
 urlpatterns = [
@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^register/', registerView,name='register'),
     url(r'^login/', loginView,name='login'),
     url(r'^logout/', logout,{'next_page': '/index'},name='logout'),
+    url(r'^desktop/', desktopView,name='desktop'),
 ]

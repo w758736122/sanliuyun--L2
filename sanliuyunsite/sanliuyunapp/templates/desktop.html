@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+{% load staticfiles %}
 <html>
     <head>
         <meta charset="utf-8">
         <title>三六云</title>
         <link rel="stylesheet" href="http://semantic-ui.com/dist/semantic.min.css" media="screen" title="no title">
-        <link rel="stylesheet" href="css/desktop.css" media="screen" title="no title">
-        <link rel="stylesheet" href="css/popup.css" media="screen" title="no title" charset="utf-8">
+        <link rel="stylesheet" href="{% static 'css/desktop.css' %}" media="screen" title="no title">
+        <link rel="stylesheet" href="{% static 'css/popup.css' %}" media="screen" title="no title" charset="utf-8">
     </head>
     <body>
 
         <div class="ui vertical segment hu">
             <div class="ui text menu">
-                <a class="item"><img class="ui small image"src="images/logo.png"></a>
+                <a class="item"><img class="ui small image"src="{% static 'images/logo.png' %}"></a>
                 <div class="right menu">
 
                     <div class="ui simple dropdown"style="padding:11px 0px 0 10px;margin-right:100px;">
@@ -25,9 +26,9 @@
                     </div>
 
                     <div class="ui simple dropdown"style="padding-top:5px;">
-                        <img class="ui mini image" src="images/默认头像.png" alt="" />
+                        <img class="ui mini image" src="{% static 'images/默认头像.png' %}" alt="" />
                         <div class="menu">
-                            <img class="ui tiny centered image" src="images/默认头像.png">
+                            <img class="ui tiny centered image" src="{% static 'images/默认头像.png' %}">
                             <p style="text-align:center;font-size:20px;margin:0 100px 0 100px">
                                 Dante
                             </p>

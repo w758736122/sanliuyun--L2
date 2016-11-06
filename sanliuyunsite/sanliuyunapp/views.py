@@ -11,6 +11,10 @@ def indexView(request):
     return render(request,'index.html',context)
 
 
+def desktopView(request):
+    context = {}
+    return render(request,'desktop.html',context)    
+
 
 def loginView(request):
     context={}
