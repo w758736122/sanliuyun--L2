@@ -22,21 +22,22 @@ def loginView(request):
         if form.is_valid():
             inputName = form.cleaned_data['inputName']
             password = form.cleaned_data['password']
-            user = authenticate(username =inputName,password = password)
-            if user:
-                login(request,user)
-                return redirect(to = 'index')
-            else:
-                person = Person.objects.get(email_address = inputName)
-                inputName = person.nickname
+            try:
                 user = authenticate(username =inputName,password = password)
                 if user:
                     login(request,user)
                     return redirect(to = 'index')
                 else:
-                    return HttpResponse('用户名/密码错误')
-
-
+                    person = Person.objects.get(email_address = inputName)
+                    inputName = person.nickname
+                    user = authenticate(username =inputName,password = password)
+                    if user:
+                        login(request,user)
+                        return redirect(to = 'index')
+                    else:
+                        return HttpResponse('用户名/密码错误')
+            except Person.DoesNotExist:
+                return HttpResponse('用户名不存在')
             return redirect(to = 'index')
     context['form']= form
     return render(request,'login.html',context)
@@ -54,11 +55,14 @@ def registerView(request):
             if nickname ==email_address:
                 return HttpResponse('昵称和邮箱地址不能一样哦~')
             try:
+                nickname_judge = Person.objects.get(nickname = nickname )
+                if nickname_judge:
+                    return HttpResponse('用户名重复了~')
+            except:
                 email_judge= Person.objects.get(email_address = email_address )
                 if email_judge:
                     return HttpResponse('邮箱重复了~')
             ##判断是否邮箱已经存在
-            except:
                 password1 = form.cleaned_data['password1']
                 password2 = form.cleaned_data['password2']
                 if password1 == password2:
@@ -70,7 +74,6 @@ def registerView(request):
                     if user:
                         login(request,user)
                         return redirect(to = 'index')
-
                 else:
                     return HttpResponse('2次密码不同，请重新输入')
     context['form']= form
