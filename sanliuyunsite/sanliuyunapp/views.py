@@ -1,9 +1,11 @@
 from django.shortcuts import render,redirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm,UserCreationForm
 from django.contrib.auth import authenticate,login
 from django.contrib.auth.models import User
-from django.http import HttpResponse
-from sanliuyunapp.form import registerForm,loginForm, ArticleForm
+from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
+from django.http import HttpResponse,StreamingHttpResponse
+from sanliuyunapp.form import registerForm,loginForm, ArticleForm,uploadArtForm
 from sanliuyunapp.models import Person, Article
 
 
@@ -11,7 +13,69 @@ def indexView(request):
     context = {}
     return render(request,'index.html',context)
 
+def uploadView(request):
+    context = {}
+    if request.method == 'GET':
+        form = uploadArtForm
+    if request.method == 'POST':
+        form = uploadArtForm(request.POST,request.FILES)
+        if form.is_valid():
+            user_id = request.user.user_profile.id
+            headline = form.cleaned_data['headline']
+            upload_art = request.FILES['uploadArt']
+            art = Article(headline = headline,local_article=upload_art)
+            art.save()
+            art.author.add(user_id)
+            art.save()
+            return redirect(to='desktop')
+    context['form'] = form
+    return render(request,'upload.html',context)
 
+def downloadArtView(request,art_name):
+    context = {}
+    user_id = request.user.id
+    headline = art_name
+    art = Article.objects.get(headline = art_name)
+    content = art.text
+    target = "D:\{}.doc".format(headline)
+    with open(target,'w') as fs:
+        for chunk in content:
+            fs.write(chunk)
+        fs.close()
+        return HttpResponse('已经导出到D盘根目录')
+    return render(request,'desktop.html',context)
+
+
+
+@login_required(redirect_field_name='login',login_url='login')
+def desktopView(request):
+    context = {}
+    user_id = request.user.id
+    art = Article.objects.filter(author = user_id).order_by('-save_time')
+    page_robot = Paginator(art,15)
+    page_num = request.GET.get('page')
+    if page_num:
+        page = int(page_num)
+    else:
+        page = 1#不加index 跳转进来会报错
+    try:
+        art = page_robot.page(page_num)
+    except EmptyPage:
+        art = page_robot.page(page_robot.num_pages)
+    except PageNotAnInteger:
+        art = page_robot.page(1)
+    if page == int(page_robot.num_pages):
+        page_range = page_robot.page_range[page-5:page_robot.num_pages]
+    elif page == int(page_robot.num_pages)-1:
+        page_range = page_robot.page_range[page-4:page_robot.num_pages+1]
+    elif page <= 2:
+        page_range = page_robot.page_range[0:5-page+page]
+    else:
+        page_range = page_robot.page_range[page-3 :page+2]
+    context['art'] =art
+    context['page_range'] =page_range
+
+    return render(request,'desktop.html',context)
 
 def loginView(request):
     context={}
@@ -41,7 +105,6 @@ def loginView(request):
             return redirect(to = 'index')
     context['form']= form
     return render(request,'login.html',context)
-
 
 def registerView(request):
     context={}
@@ -78,6 +141,24 @@ def registerView(request):
                     return HttpResponse('2次密码不同，请重新输入')
     context['form']= form
     return render(request,'register.html',context)
+
+def deleteArtView(request,art_name):
+    context = {}
+    try:
+        art = Article.objects.get(id = art_name)
+        if request.method == 'GET':
+            pass
+        if request.method == 'POST':
+            art.delete()
+            return redirect('delResult')
+
+    except:
+        return HttpResponse('页面已经删除了~')
+    return render(request,'deleteArt.html',context)
+
+def deleteResultView(request):
+    context = {}
+    return render(request,'deleteResult.html',context)
 
 
 def editorView(request):
